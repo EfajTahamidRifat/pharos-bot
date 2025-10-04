@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>✨ Pharos Bot GUI</title>
+  <style>
+    body { background: #0f0c29; color: #e0e0ff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { text-align: center; color: #00f7ff; }
+    .subtitle { text-align: center; margin-bottom: 20px; color: #ff7eff; }
+    .btn-play { display: block; margin: 20px auto; padding: 12px 30px; font-size: 18px; background: #ff2a6d; color: white; border: none; border-radius: 50px; cursor: pointer; }
+    .logs { background: #1a1a2e; color: #00ffaa; padding: 15px; border-radius: 10px; height: 300px; overflow-y: auto; font-family: monospace; margin-top: 20px; }
+    #onboardingPopup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .popup-content { background: #1a1a2e; padding: 30px; border-radius: 15px; text-align: center; max-width: 500px; border: 2px solid #ff2a6d; }
+    .popup-content h2 { color: #ff2a6d; }
+    .btn-join { background: #ff7e5f; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ Pharos Bot GUI</h1>
+    <p class="subtitle">🌌 PharosV2 Auto Bot<br>Testnet automation with style! ✨</p>
+    <button id="startBtn" class="btn-play">▶️ Start Bot</button>
+    <div id="logs" class="logs"></div>
+  </div>
+
+  <!-- Onboarding Popup -->
+  <div id="onboardingPopup">
+    <div class="popup-content">
+      <h2>🚀 Mandatory Onboarding</h2>
+      <p>To use this bot, you must first register on Pharos Testnet using our invite link.</p>
+      <a href="https://testnet.pharosnetwork.xyz/experience?inviteCode=HSs9BepMgDSBYB4m" target="_blank">
+        <button class="btn-join">🔗 Register with Invite Code</button>
+      </a>
+      <p style="font-size:12px; color:#888; margin-top:15px;">
+        After registration, connect your wallet and return here.
+      </p>
+      <button class="btn-join" onclick="document.getElementById('onboardingPopup').style.display='none'; localStorage.setItem('onboarded','true');">I’ve Registered — Continue</button>
+    </div>
+  </div>
+
+  <script>
+    if (localStorage.getItem('onboarded')) {
+      document.getElementById('onboardingPopup').style.display = 'none';
+    }
+
+    const startBtn = document.getElementById('startBtn');
+    const logsDiv = document.getElementById('logs');
+
+    startBtn.onclick = async () => {
+      startBtn.disabled = true;
+      startBtn.textContent = '⏳ Running...';
+      logsDiv.innerHTML = '';
+
+      // Auto-run all actions
+      const actions = ['sendtx', 'mintconft', 'mintgotchipus'];
+      for (let action of actions) {
+        const params = action === 'sendtx' ? { count: 1, amount: "0.001", useFile: false } : { count: 1 };
+        await fetch('/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, params })
+        });
+      }
+
+      const eventSource = new EventSource('/logs');
+      eventSource.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+        logsDiv.innerHTML += `<div>${msg}</div>`;
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+      };
+    };
+  </script>
+</body>
+</html>

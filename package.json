@@ -1,0 +1,14 @@
+{
+  "name": "pharos-bot",
+  "version": "1.0.0",
+  "description": "Pharos Testnet Automation by Crypto Hunters",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ethers": "^6.11.0",
+    "solc": "^0.8.19"
+  }
+}
